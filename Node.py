@@ -3,6 +3,10 @@ import Settings
 
 
 class Node():
+    """
+        传感器节点类
+    """
+
     def __init__(self):
         # 部署范围
         self.scope = 0
@@ -17,7 +21,7 @@ class Node():
         self.energy = 3
         # 节点是否处于休眠状态
         self.is_asleep = True
-        # 节点改变状态 0代表未改变 1代表这一轮改变 2代表上一轮改变
+        # 节点改变状态 0代表未改变 1代表这一轮改变
         self.is_changed = 0
         # 节点是否存活
         self.is_alive = True

@@ -45,6 +45,32 @@ def judge_close(node1, node2):
         return False
 
 
+def get_all_sleeping_nodes(sensor):
+    """
+    获取当前所有处于休眠中的节点
+    :param sensor:
+    :return:节点列表
+    """
+    sleep_nodes = []
+    for node in sensor:
+        if node.is_alive and node.is_asleep:
+            sleep_nodes.append(node)
+    return sleep_nodes
+
+
+def get_all_active_nodes(sensor):
+    """
+    获取所有处于活跃状态的结点
+    :param sensor:
+    :return:
+    """
+    all_active_nodes = []
+    for node in sensor:
+        if node.is_alive and not node.is_asleep:
+            all_active_nodes.append(node)
+    return all_active_nodes
+
+
 def get_close_nodes(node, sensor):
     """
     获取节点邻近区域内的所有节点
@@ -89,9 +115,35 @@ def judge_in_two_circles(grid_point, node1, node2):
         return False
 
 
+def get_grid_points_in_node(grid_points, node):
+    """
+    获取某个节点内的格点数
+    :param grid_points:
+    :param node:
+    :return:
+    """
+    num = 0
+    for grid_point in grid_points:
+        if get_grid_sensor_distance(grid_point, node) < node.PERCEIVED_RADIUS:
+            num += 1
+
+
+def get_grid_points_on_node_border(grid_points, node):
+    """
+    获取某个节点边界上的格点数
+    :param grid_points:
+    :param node:
+    :return:
+    """
+    num = 0
+    for grid_point in grid_points:
+        if get_grid_sensor_distance(grid_point, node) == node.PERCEIVED_RADIUS:
+            num += 1
+
+
 def get_in_grid_points_num(grid_points, node1, node2):
     """
-    获取两个传感器节点内的所有格点
+    获取两个传感器节点内的所有格点（格点系数i）
     :param grid_points:
     :param node1:
     :param node2:
@@ -104,7 +156,7 @@ def get_in_grid_points_num(grid_points, node1, node2):
     return num
 
 
-def judge_on_two_circles(grid_point, node1, node2):
+def judge_on_two_nodes_border(grid_point, node1, node2):
     """
     判断某个格点是否在两个传感器感知半径上
     :param grid_point:
@@ -122,7 +174,7 @@ def judge_on_two_circles(grid_point, node1, node2):
 
 def get_on_grid_points_num(grid_points, node1, node2):
     """
-    获取两个传感器节点上的所有格点
+    获取两个传感器节点上的所有格点（格点系数j）
     :param grid_points:
     :param node1:
     :param node2:
@@ -130,6 +182,53 @@ def get_on_grid_points_num(grid_points, node1, node2):
     """
     num = 0
     for grid_point in grid_points:
-        if judge_on_two_circles(grid_point, node1, node2):
+        if judge_on_two_nodes_border(grid_point, node1, node2):
             num += 1
     return num
+
+
+def get_total_in_grid_points(grid_points, node, sensor):
+    """
+    获取某个节点邻近区域内所有感知范围内的格点（外围格点系数i）
+    :param grid_points:
+    :param node:
+    :param sensor:
+    :return:
+    """
+    num = 0
+    close_nodes = get_close_nodes(node, sensor)
+    for close_node in close_nodes:
+        num += get_in_grid_points_num(grid_points, node, close_node)
+    return num
+
+
+def get_total_on_grid_points(grid_points, node, sensor):
+    """
+    获取某个节点邻近区域内所有感知范围内的格点（外围格点系数j）
+    :param grid_points:
+    :param node:
+    :param sensor:
+    :return:
+    """
+    num = 0
+    close_nodes = get_close_nodes(node, sensor)
+    for close_node in close_nodes:
+        num += get_on_grid_points_num(grid_points, node, close_node)
+    return num
+
+
+def caculate_area(grid_points, node, sensor):
+    """
+    计算传感器外围格点区域
+    :param grid_points:
+    :param node:
+    :param sensor:
+    :return:
+    """
+    i = get_total_in_grid_points(grid_points, node, sensor)
+    j = get_total_on_grid_points(grid_points, node, sensor)
+    if i == 0:
+        area = (math.sqrt(i) + 1) ** 2 / 2
+    else:
+        area = (j + 1) / 2
+    return area
