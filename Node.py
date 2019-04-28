@@ -1,4 +1,5 @@
 import random
+import Settings
 
 
 class Node():
@@ -37,3 +38,25 @@ class Node():
     # 节点苏醒
     def revive(self):
         self.is_asleep = False
+
+    def send_datapack(self, size, distance):
+        """
+        发送时节点消耗的能量
+        :param size: 数据包大小
+        :param distance: 距离
+        :return:
+        """
+        if distance < Settings.d0:
+            sending_energy = Settings.Eelec * size + size * Settings.Efs * distance ** 2
+        else:
+            sending_energy = Settings.Eelec * size + size * Settings.Emp * distance ** 4
+        self.energy -= sending_energy
+
+    def receive_datapack(self, size):
+        """
+        接收时消耗的能量
+        :param size: 数据包大小
+        :return:
+        """
+        receving_energy = Settings.Eelec * size
+        self.energy -= receving_energy

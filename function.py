@@ -11,14 +11,12 @@ def find_distance(node1, node2):
     :return: 距离（保留两位小数）
     """
     distance = math.sqrt((node2.x - node1.x) * (node2.x - node1.x) + (node2.y - node1.y) * (node2.y - node1.y))
-    # 通信消耗能量
-    if distance < Settings.d0:
-        sending_energy = Settings.broadcast_datapack * Settings.Eelec + Settings.broadcast_datapack * Settings.Efs * distance ** 2
-    else:
-        sending_energy = Settings.broadcast_datapack * Settings.Eelec + Settings.broadcast_datapack * Settings.Emp * distance ** 4
-    receiving_energy = Settings.broadcast_datapack * Settings.Eelec
-    node1.energy = node1.energy - sending_energy
-    node2.energy = node2.energy - receiving_energy
+    # 发送广播数据包请求距离
+    node1.send_datapack(Settings.broadcast_datapack, distance)
+    node2.receive_databack(Settings.broadcast_datapack)
+    # 发送距离数据包
+    node2.send_datapack(Settings.information_databack, distance)
+    node2.send_datapack(Settings.information_databack, distance)
     return round(distance, 2)
 
 
