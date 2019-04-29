@@ -35,6 +35,19 @@ class Node():
         self.x = random.randint(0, self.scope)
         self.y = random.randint(0, self.scope)
 
+    def choose_sleep(self):
+        """
+        判断节点是休眠还是苏醒
+        :return:
+        """
+        coef = random.randint(1, 10)
+        # 节点苏醒
+        if coef <= 5:
+            self.revive()
+        # 节点休眠
+        elif coef > 5:
+            self.sleep()
+
     # 节点休眠
     def sleep(self):
         self.is_asleep = True
@@ -55,6 +68,8 @@ class Node():
         else:
             sending_energy = Settings.Eelec * size + size * Settings.Emp * distance ** 4
         self.energy -= sending_energy
+        if self.energy <= 0:
+            self.is_alive = False
 
     def receive_datapack(self, size):
         """
@@ -64,3 +79,5 @@ class Node():
         """
         receving_energy = Settings.Eelec * size
         self.energy -= receving_energy
+        if self.energy <= 0:
+            self.is_alive = False

@@ -1,23 +1,13 @@
 import Node
 import Settings
 import function
-import grid_point
-import numpy as np
-import matplotlib.pyplot as plt
-
-# 类似于界面大小
-x = y = np.arange(-5, 5, 0.1)
-x, y = np.meshgrid(x, y)
-plt.contour(x, y, x ** 2 + y ** 2, [9])
-
-plt.axis('scaled')
-plt.show()
+import Grid_point
 
 
-def one_turn(grid_ponts, sensor):
+def one_turn(grid_points, sensor):
     """
     每一轮操作
-    :param grid_ponts:
+    :param grid_points:
     :param sensor:
     :return:
     """
@@ -25,28 +15,41 @@ def one_turn(grid_ponts, sensor):
     sleeping_nodes = function.get_all_sleeping_nodes(sensor)
     for active_node in active_nodes:
         # 计算每个active_node的格点区域
-        area = function.caculate_area(grid_ponts, active_node)
-        outer_area = function.caculate_outer_area(grid_points, active_node, sensor)
+        active_close_nodes = function.get_close_active_nodes(active_node, sensor)
+        area = function.caculate_area(grid_points, active_node)
+        outer_area = function.caculate_outer_area(grid_points, active_node, active_close_nodes)
         if outer_area >= Settings.alpha * area:
             active_node.sleep()
-            active_node.is_changed = True
     for sleeping_node in sleeping_nodes:
-        # 计算每个active_node的格点区域
-        area = function.caculate_area(grid_ponts, sleeping_node)
-        outer_area = function.caculate_outer_area(grid_points, sleeping_node, sensor)
+        # 计算每个sleeping_node的格点区域
+        active_close_nodes = function.get_close_active_nodes(sleeping_node, sensor)
+        area = function.caculate_area(grid_points, sleeping_node)
+        outer_area = function.caculate_outer_area(grid_points, sleeping_node, active_close_nodes)
         if outer_area < Settings.alpha * area:
             sleeping_node.revive()
-            sleeping_node.is_changed = True
+    function.remove_deadnodes(sensor)
 
 
 if __name__ == '__main__':
+    t = 0
     # 格点列表
     grid_points = []
-    for i in range(Settings.area ** 2):
-        grid_point = grid_point.grid_point()
+    for i in range(Settings.area):
+        for j in range(Settings.area):
+            grid_point = Grid_point.grid_point(i, j)
+            grid_points.append(grid_point)
+    # 节点列表
     sensor = []
     for i in range(Settings.node_count):
         node = Node.Node()
         node.set_scope(Settings.area)
         node.random_position()
-        sensor.append()
+        node.choose_sleep()
+        sensor.append(node)
+
+    # function.draw(sensor)
+    # while function.count_alive_nodes(sensor) != 0:
+    #     t = t + 1
+    #     if t == Settings.interval:
+    one_turn(grid_points, sensor)
+    function.draw(sensor)
