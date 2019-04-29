@@ -15,16 +15,17 @@ def one_turn(grid_points, sensor):
     sleeping_nodes = function.get_all_sleeping_nodes(sensor)
     for active_node in active_nodes:
         # 计算每个active_node的格点区域
-        active_close_nodes = function.get_close_active_nodes(active_node, sensor)
         area = function.caculate_area(grid_points, active_node)
-        outer_area = function.caculate_outer_area(grid_points, active_node, active_close_nodes)
+        print(area)
+        outer_area = function.caculate_outer_area(grid_points, active_node, sensor)
+        print(outer_area)
         if outer_area >= Settings.alpha * area:
             active_node.sleep()
+
     for sleeping_node in sleeping_nodes:
         # 计算每个sleeping_node的格点区域
-        active_close_nodes = function.get_close_active_nodes(sleeping_node, sensor)
         area = function.caculate_area(grid_points, sleeping_node)
-        outer_area = function.caculate_outer_area(grid_points, sleeping_node, active_close_nodes)
+        outer_area = function.caculate_outer_area(grid_points, sleeping_node, sensor)
         if outer_area < Settings.alpha * area:
             sleeping_node.revive()
     function.remove_deadnodes(sensor)
@@ -51,5 +52,7 @@ if __name__ == '__main__':
     # while function.count_alive_nodes(sensor) != 0:
     #     t = t + 1
     #     if t == Settings.interval:
+    function.draw(sensor)
     one_turn(grid_points, sensor)
     function.draw(sensor)
+

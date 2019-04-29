@@ -82,7 +82,7 @@ def get_close_nodes(node, sensor):
     """
     node_list = []
     for node2 in sensor:
-        if judge_close(node, node2):
+        if node2 != node and judge_close(node, node2):
             node_list.append(node2)
     return node_list
 
@@ -191,28 +191,30 @@ def get_points_on_two_node_border(grid_points, node1, node2):
     return num
 
 
-def get_total_in_grid_points(grid_points, node, active_close_nodes):
+def get_total_in_grid_points(grid_points, node, sensor):
     """
     获取某个节点邻近区域内所有活跃节点感知范围内的格点（外围格点系数i）
     :param grid_points:
     :param node:
-    :param active_close_nodes:
+    :param sensor:
     :return:
     """
+    active_close_nodes = get_close_active_nodes(node, sensor)
     num = 0
     for active_close_node in active_close_nodes:
         num += get_points_in_two_nodes(grid_points, node, active_close_node)
     return num
 
 
-def get_total_on_grid_points(grid_points, node, active_close_nodes):
+def get_total_on_grid_points(grid_points, node, sensor):
     """
     获取某个节点邻近区域内所有活跃节点感知范围上的格点（外围格点系数j）
     :param grid_points:
     :param node:
-    :param active_close_nodes:
+    :param sensor:
     :return:
     """
+    active_close_nodes = get_close_active_nodes(node, sensor)
     num = 0
     for active_close_node in active_close_nodes:
         num += get_points_on_two_node_border(grid_points, node, active_close_node)
@@ -235,16 +237,16 @@ def caculate_area(grid_points, node):
     return area
 
 
-def caculate_outer_area(grid_points, node, active_close_nodes):
+def caculate_outer_area(grid_points, node, sensor):
     """
     计算传感器外围格点区域
     :param grid_points:
     :param node:
-    :param active_close_nodes:
+    :param sensor:
     :return:
     """
-    i = get_total_in_grid_points(grid_points, node, active_close_nodes)
-    j = get_total_on_grid_points(grid_points, node, active_close_nodes)
+    i = get_total_in_grid_points(grid_points, node, sensor)
+    j = get_total_on_grid_points(grid_points, node, sensor)
     if i == 0:
         area = (math.sqrt(i) + 1) ** 2 / 2
     else:
