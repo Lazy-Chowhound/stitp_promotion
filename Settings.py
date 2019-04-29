@@ -20,3 +20,6 @@ d0 = round(math.sqrt(Efs / Emp))
 broadcast_datapack = 30
 # 发送数据包大小
 information_databack = 500
+
+# 阈值
+alpha = 0.7
