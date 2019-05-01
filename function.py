@@ -94,10 +94,10 @@ def get_close_active_nodes(node, sensor):
     :param sensor:
     :return:节点列表
     """
-    close_active_node_list = get_close_nodes(node, sensor)
-    for node in close_active_node_list:
-        if node.is_asleep:
-            close_active_node_list.remove(node)
+    close_active_node_list =[]
+    for node2 in sensor:
+        if node2 != node and judge_close(node, node2) and not node2.is_asleep:
+            close_active_node_list.append(node2)
     return close_active_node_list
 
 
@@ -230,7 +230,7 @@ def caculate_area(grid_points, node):
     """
     i = get_grid_points_in_node(grid_points, node)
     j = get_grid_points_on_node_border(grid_points, node)
-    if i == 0:
+    if i != 0:
         area = (math.sqrt(i) + 1) ** 2 / 2
     else:
         area = (j + 1) / 2
@@ -247,7 +247,7 @@ def caculate_outer_area(grid_points, node, sensor):
     """
     i = get_total_in_grid_points(grid_points, node, sensor)
     j = get_total_on_grid_points(grid_points, node, sensor)
-    if i == 0:
+    if i != 0:
         area = (math.sqrt(i) + 1) ** 2 / 2
     else:
         area = (j + 1) / 2
@@ -281,3 +281,51 @@ def draw(sensor):
         plt.contour(x, y, (x - node.x / 10) ** 2 + (y - node.y / 10) ** 2, [node.PERCEIVED_RADIUS / 10])
     plt.axis('scaled')
     plt.show()
+
+
+def consume_energy_per_second(sensor):
+    """
+    每秒钟网络消耗能量
+    :param sensor:
+    :return:
+    """
+    for node in sensor:
+        if node.is_asleep:
+            node.energy = node.energy - Settings.p_sleeping
+            if node.energy <= 0:
+                node.is_alive = False
+        else:
+            node.energy = node.energy - Settings.p_working
+            if node.energy <= 0:
+                node.is_alive = False
+
+
+def judge_grid_in_node(grid_point, sensor):
+    """
+    判断格点是否在某个传感器感知范围内
+    :param grid_point:
+    :param sensor:
+    :return:
+    """
+    active_nodes = get_all_active_nodes(sensor)
+    for active_node in active_nodes:
+        distance = get_grid_sensor_distance(grid_point, active_node)
+        if distance < active_node.PERCEIVED_RADIUS:
+            return True
+    return False
+
+
+def get_coverage(grid_points, sensor):
+    """
+    计算覆盖率(用格点来模拟)
+    :param grid_points:
+    :param sensor:
+    :return:
+    """
+    i = 0
+    coverage = 0
+    for grid_point in grid_points:
+        if judge_grid_in_node(grid_point, sensor):
+            i += 1
+    coverage = (math.sqrt(i) + 1) ** 2 / 2
+    return coverage / 28
